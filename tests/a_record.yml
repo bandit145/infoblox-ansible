@@ -1,0 +1,36 @@
+---
+- name: test infoblox_host_record
+  hosts: all
+  gather_facts: false
+
+  vars_prompt:
+
+    - name: domain_user
+      prompt: user
+      private: no
+
+    - name: domain_password
+      prompt: password
+      private: yes
+
+  vars:
+    host_name: test.southernonthegreen.net
+    infoblox_server: infoblox.scsu.southernct.edu
+    dns_view: Public View (PNS)
+
+  tasks:
+    - name: create a record
+      infoblox_a_record:
+        host: "{{infoblox_server}}"
+        name: "{{host_name}}"
+        ip_address: 8.8.4.4
+        username: "{{domain_user}}"
+        password: "{{domain_password}}"
+        dns_view: "{{dns_view}}"
+        validate_certs: no
+        wapi_version: 1.7
+      register: a_record1
+      delegate_to: localhost
+
+    - debug:
+        var: a_record1
