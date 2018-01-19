@@ -1,5 +1,5 @@
 ---
-- name: test infoblox_host_record
+- name: test infoblox_a_record
   hosts: all
   gather_facts: false
 
@@ -14,8 +14,8 @@
       private: yes
 
   vars:
-    host_name: test.southernonthegreen.net
-    infoblox_server: infoblox.scsu.southernct.edu
+    host_name: 
+    infoblox_server:
     dns_view: Public View (PNS)
 
   tasks:
@@ -34,3 +34,53 @@
 
     - debug:
         var: a_record1
+
+    - name: create a record
+      infoblox_a_record:
+        host: "{{infoblox_server}}"
+        name: "{{host_name}}"
+        ip_address: 8.8.8.8
+        username: "{{domain_user}}"
+        password: "{{domain_password}}"
+        dns_view: "{{dns_view}}"
+        validate_certs: no
+        wapi_version: 1.7
+      register: a_record2
+      delegate_to: localhost
+
+    - debug:
+        var: a_record2
+
+    - name: remove a record
+      infoblox_a_record:
+        host: "{{infoblox_server}}"
+        name: "{{host_name}}"
+        ip_address: 8.8.8.8
+        username: "{{domain_user}}"
+        password: "{{domain_password}}"
+        dns_view: "{{dns_view}}"
+        state: absent
+        validate_certs: no
+        wapi_version: 1.7
+      register: a_record3
+      delegate_to: localhost
+
+    - debug:
+        var: a_record3
+
+    - name: remove a record
+      infoblox_a_record:
+        host: "{{infoblox_server}}"
+        name: "{{host_name}}"
+        ip_address: 8.8.4.4
+        username: "{{domain_user}}"
+        password: "{{domain_password}}"
+        dns_view: "{{dns_view}}"
+        state: absent
+        validate_certs: no
+        wapi_version: 1.7
+      register: a_record4
+      delegate_to: localhost
+
+    - debug:
+        var: a_record4

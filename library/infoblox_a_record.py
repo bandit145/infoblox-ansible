@@ -35,28 +35,16 @@ def create_a_record(conn, module, a_record):
 		else:
 			extattrs = None
 		if a_record:
-			if is_different(module, a_record, extattrs):
-				a_record = a_record.create(conn,ip=module.params['ip_address'],name=module.params['name'], 
-					view=module.params['dns_view'],extattrs=extattrs,update_if_exists=True)
-				module.exit_json(changed=True, name=a_record.name, ip_addr=a_record.ipv4addr, extattrs=ea_to_dict(a_record.extattrs))
-			else:
-				module.exit_json(changed=False, ip_addr=a_record.ipv4addr, name=a_record.name)
+			module.exit_json(changed=False, ip_addr=a_record.ipv4addr, name=a_record.name)
+		
 		objects.ARecord.create(conn,ip=module.params['ip_address'],name=module.params['name'] ,
 			view=module.params['dns_view'],extattrs=extattrs)
-		a_record = objects.ARecord.search(conn, name=module.params['name'])
+		#ARecord.create does not return the ip address etc. so we must seach for it again
+		a_record = objects.ARecord.search(conn, name=module.params['name'], ipv4addr=module.params['ip_address'])
 		module.exit_json(changed=True, name=a_record.name, ip_addr=a_record.ipv4addr, extattrs=ea_to_dict(a_record.extattrs))
 
 	except exceptions.InfobloxException as error:
 		module.fail_json(msg=str(error))
-
-
-def is_different(module, a_record, extattrs):
-	if a_record.ipv4addr != module.params['ip_address']:
-		return True
-	elif a_record.extattrs != extattrs:
-		return True
-	else:
-		return False
 
 
 def main():
@@ -83,7 +71,7 @@ def main():
 	try:
 		conn = connector.Connector({'host':module.params['host'],'username':module.params['username'],'password':module.params['password'],
 			'ssl_verify':module.params['validate_certs'],'wapi_version':module.params['wapi_version']})
-		a_record = objects.ARecord.search(conn, name=module.params['name'])
+		a_record = objects.ARecord.search(conn, name=module.params['name'],ipv4addr=module.params['ip_address'])
 
 		if module.params['state'] == 'present':
 			create_a_record(conn, module, a_record)
