@@ -150,8 +150,6 @@ def is_different(module, host_record, extattrs):
 			module.fail_json(msg='IP address of a Host Record object cannot be changed')
 		elif hasattr(host_record,'ipv6addr') and host_record.ipv6addr != module.params['ip_address']: 
 			module.fail_json(msg='IP address of a Host Record object cannot be changed')
-	elif module.params['next_avail_ip']:
-		module.fail_json(msg='IP address of a Host Record object cannot be changed')
 	#if these are different then update
 	elif host_record.extattrs != extattrs:
 		return True
