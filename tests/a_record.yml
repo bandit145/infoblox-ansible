@@ -14,9 +14,9 @@
       private: yes
 
   vars:
-    host_name: 
+    host_name: test
     infoblox_server:
-    dns_view: Public View (PNS)
+    dns_view: CSU View (INS)
 
   tasks:
     - name: create a record

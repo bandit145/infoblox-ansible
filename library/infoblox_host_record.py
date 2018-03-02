@@ -143,7 +143,7 @@ def ea_to_dict(extattrs):
 	else:
 		return {}
 
-def is_different(module, host_record, extattrs):
+def is_different(module, host_record):
 	#if ip address different, fail and inform user
 	if module.params['ip_address']:
 		if  hasattr(host_record,'ipv4addr') and host_record.ipv4addr != module.params['ip_address']:
@@ -151,7 +151,7 @@ def is_different(module, host_record, extattrs):
 		elif hasattr(host_record,'ipv6addr') and host_record.ipv6addr != module.params['ip_address']: 
 			module.fail_json(msg='IP address of a Host Record object cannot be changed')
 	#if these are different then update
-	elif host_record.extattrs != extattrs:
+	elif host_record.extattrs.__dict__['_ea_dict'] != module.params['extattrs']:
 		return True
 	else:
 		return False
@@ -173,7 +173,7 @@ def create_host_record(conn,host_record, module, ip_addr):
 		else:
 			extattrs = None
 		if host_record:
-			if is_different(module, host_record, extattrs):
+			if is_different(module, host_record):
 				#uncomment to verify that this is indeed making it's way to this
 				#module.fail_json(msg='updating...')
 				host_record.create(conn, ip=ip_addr, view=module.params['dns_view'], name=module.params['name'],
