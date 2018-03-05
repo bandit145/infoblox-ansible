@@ -14,10 +14,10 @@
       private: yes
 
   vars:
-    host_name: 
-    infoblox_server: 
-    network_view: 
-    dns_view: Public View (PNS)
+    host_name: test.scsu.southernct.edu
+    infoblox_server:
+    dns_view: CSU View (INS)
+    network_view:
 
   tasks:
 
@@ -60,6 +60,25 @@
     - fail:
       when: "'10.64.33' not in host_info.ip_addr"
 
+    #checking to make sure extattrs dont break 
+    - name: add host record again with extattrs
+      infoblox_host_record:
+        host: "{{infoblox_server}}"
+        name: "{{host_name }}"
+        dns_view: "{{dns_view}}"
+        network_view: "{{network_view}}"
+        cidr: 10.64.33.0/24
+        next_avail_ip: yes
+        username: "{{domain_user}}"
+        password: "{{domain_password}}"
+        validate_certs: no
+        extattrs:
+          Site: SCSU
+        wapi_version: 1.7
+        state: present
+      register: host_info
+      delegate_to: localhost
+
     - name: ensure host record
       infoblox_host_record:
         host: "{{infoblox_server}}"
@@ -70,6 +89,8 @@
         password: "{{domain_password}}"
         validate_certs: no
         wapi_version: 1.7
+        extattrs:
+          Site: SCSU
         state: present
       register: host_info2
       delegate_to: localhost
